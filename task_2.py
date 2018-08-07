@@ -32,7 +32,7 @@ def merge_two_files(fname1: str, fname2: str) -> str:
 
     class KeyVal:
         """ Allows to create unique key objects, to avoid situations,
-        when one of the equal integers keys overrite the other. """
+        when one of the equal integers keys override the other. """
         def __init__(self, val):
             self.val = val
 
@@ -45,21 +45,21 @@ def merge_two_files(fname1: str, fname2: str) -> str:
     # Get initial values if file is not empty
     val_1 = init_val(proc_1)
     val_2 = init_val(proc_2)
-    queue = {}
+    schedule = {}
     if val_1: 
-        queue[KeyVal(val_1)] = proc_1
+        schedule[KeyVal(val_1)] = proc_1
     if val_2: 
-        queue[KeyVal(val_2)] = proc_2
+        schedule[KeyVal(val_2)] = proc_2
 
     while True:
-        if not queue:
+        if not schedule:
             break
-        high_prior = sorted(queue, key=lambda x: x.val)[0]
-        current_proc = queue.pop(high_prior)
+        high_prior = sorted(schedule, key=lambda x: x.val)[0]
+        current_proc = schedule.pop(high_prior)
         f3.write(str(high_prior.val) + '\n')
         try:
             new_val = next_val(current_proc)
-            queue[KeyVal(new_val)] = current_proc
+            schedule[KeyVal(new_val)] = current_proc
         except StopIteration:
             pass
 
