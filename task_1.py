@@ -3,7 +3,8 @@
 
 from queue import Queue
 # E = dict('A':['B', 'C'], 'B':['C','E'], 'C':['D'])
-E = {"A": ["B", "C"], "B": ["A", "C", "D", "E"], "C": ["A", "B", "E"], "D": ["B", "F"], "E": ["B", "C"], "F":["D"]}
+E = {"A": ["B", "C"], "B": ["A", "C", "D", "E"], "C": ["A", "B", "E"],
+     "D": ["B", "F"], "E": ["B", "C"], "F":["D"]}
 
 
 class Graph:
@@ -33,6 +34,7 @@ class GraphIterator:
                 self.visited.add(v)
         val = self.current_v
         return val
+
 
 graph = Graph(E)
 graph_iter = GraphIterator(E, 'F')
