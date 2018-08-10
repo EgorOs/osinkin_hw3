@@ -13,12 +13,6 @@ class Symbol(Enum):
     LEFT_BRACKET = '('
     RIGHT_BRACKET = ')'
 
-    # 1 send to lst_RPN
-    # 2 push last from stack to lst_RPN
-    # 3 remove last from stack and last candidate
-    # 4 finish
-    # 5 error
-
 class Action(Enum):
     BREAK_SIGN =    {'|':4, '-':1, '+':1, '*':1, '/':1, '(':1, ')':5}
     PLUS_SIGN =     {'|':2, '-':2, '+':2, '*':1, '/':1, '(':1, ')':2}
@@ -30,34 +24,43 @@ class Action(Enum):
 
 def brackets_trim(input_data: str) -> str:
 
-    def to_RPN(input_data):
+    def to_RPN(input_data: str) -> str:
+        # Implementation of E.W. Dejkstra algorithm https://habr.com/post/100869/
         input_data = input_data + '|'
         lst_RPN = []
         stack = ['|']
-        for sym in input_data:
-            print(stack)
+        pos = 0
+        while True:
+            sym = input_data[pos]
             if sym in ascii_lowercase:
-                print('added char')
                 lst_RPN.append(sym)
+                pos += 1
             else:
-                print(stack[-1])
-                action_choice = Action[Symbol(sym).name].value[stack[-1]]
-                print('-----', action_choice)
+                LAST_SIGN = Symbol(stack[-1]).name
+                action_choice = Action[LAST_SIGN].value[sym]
                 if action_choice == 1:
                     stack.append(sym)
+                    pos += 1
                 elif action_choice == 2:
                     last = stack.pop(-1)
                     lst_RPN.append(last)
                 elif action_choice == 3:
                     stack.pop(-1)
+                    pos += 1
                 elif action_choice == 4:
-                    return lst_RPN
+                    break
                 else:
-                    return None
+                    raise Exception('invalid input string')
+        return ''.join(lst_RPN)
 
+    def to_infix(input_data: str) -> str:
+        pass
     return to_RPN(input_data)
 
-data = 'a+b*c'
-data = 'a+c'
+# data = 'a+b*c'
+# data = 'a+b*c+k'
+# data = 'a+(b-c)'
+# data = 'a+c'
+data = '((a+b*c+k/m))*l'
 print(data)
 print(brackets_trim(data))
