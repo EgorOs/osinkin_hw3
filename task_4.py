@@ -57,10 +57,9 @@ def brackets_trim(input_data: str) -> str:
         return ''.join(lst_postfix)
 
     def to_infix(input_data: str) -> str:
-        """Algorithm from:
+        """Postfix to infix algorithm described on
         http://scanftree.com/Data_Structure/postfix-to-infix"""
         stack = []
-        i = 0
         sign_priority = {'-':1, '+':1, '*':2, '/':2}
         prev_sign_priority = 1
         for sym in input_data:
