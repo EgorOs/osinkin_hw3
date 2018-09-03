@@ -23,6 +23,8 @@ class Action(Enum):
     LEFT_BRACKET  = {'|': 5, '-': 1, '+': 1, '*': 1, '/': 1, '(': 1, ')': 3}
 
 
+
+
 def brackets_trim(input_data: str) -> str:
     """Removes extra brackets from expression"""
 
@@ -56,6 +58,18 @@ def brackets_trim(input_data: str) -> str:
                     raise Exception('invalid input string')
         return ''.join(lst_postfix)
 
+    def get_unwrapped(expression: str) -> str:
+        wrapped = 0
+        unwrapped = ''
+        for s in expression:
+            if s == '(':
+                wrapped += 1
+            elif s == ')':
+                wrapped -= 1
+            elif wrapped == 0 and s not in set(ascii_lowercase):
+                unwrapped += str(s)
+        return unwrapped
+
     def to_infix(input_data: str) -> str:
         """Postfix to infix algorithm described on
         http://scanftree.com/Data_Structure/postfix-to-infix"""
@@ -66,12 +80,35 @@ def brackets_trim(input_data: str) -> str:
             if sym in set(ascii_lowercase):
                 stack.append(sym)
             else:
+                # if operator
                 s1, s2 = stack.pop(-2), stack.pop(-1)
+                if len(s2) > 1 and sym in '/':
+                    # composite right part with 2, 1 priorities
+                    s2 = '(' + s2 + ')'
+
+                elif len(s2) > 1 and sym in '-':
+                    # composite right part with 1 priority
+                    unwrapped = get_unwrapped(s2)
+                    priorities = {sign_priority[s] for s in unwrapped}
+                    if priorities == {1}:
+                        s2 = '(' + s2 + ')'
+
+                if sign_priority[sym] == 2:
+                    # left part contains unwrapped sign with low priority
+                    unwrapped = get_unwrapped(s1)
+                    priorities = {sign_priority[s] for s in unwrapped}
+                    if 1 in priorities:
+                        s1 = '(' + s1 + ')'
+
                 if prev_sign_priority < sign_priority[sym]:
+                    # change of priority
+                    # wrap subexpressions with brackets
                     if len(s1) > 1 and '(' not in s1:
                         s1 = '(' + s1 + ')'
+
                     if len(s2) > 1 and '(' not in s2:
                         s2 = '(' + s2 + ')'
+
                     stack.append(s1 + sym + s2)
                 else:
                     stack.append(s1 + sym + s2)
@@ -82,15 +119,18 @@ def brackets_trim(input_data: str) -> str:
     input_data = input_data.replace(' ','')
     return to_infix(to_postfix(input_data))
 
-# data = 'a+b*c'
-# data = 'a+b*c+k'
-# data = 'a+(b-c)'
-# data = 'a+c'
-# data = '((a+b*c+k/m))*l'
-# data = '(((a+b-c)*((d-e))/(f-g+h)))'
-# data = '(a*(b/c)+((d-f)/k))'
-# data = 'a'
-# data = 'a+ (b+c)'
+
+assert brackets_trim('(x*y)/(j*z)+g') == 'x*y/(j*z)+g'
+assert brackets_trim('a-(b+c)') == 'a-(b+c)'
+assert brackets_trim('(a)') == 'a'
+assert brackets_trim('(a*(b/c)+((d-f)/k))*(h*(g-r))') == '(a*b/c+(d-f)/k)*h*(g-r)'
+assert brackets_trim('(x+y)/(j*z)+g') == '(x+y)/(j*z)+g'
+assert brackets_trim('x+y/(j*z)+g') == 'x+y/(j*z)+g'
+assert brackets_trim('(a*(b/c)+((d-f)/k))') == 'a*b/c+(d-f)/k'
+assert brackets_trim('a*(b+c)') == 'a*(b+c)'
+assert brackets_trim('a+(b+c)') == 'a+b+c'
+assert brackets_trim('(x*y)-(j*z)+g') == 'x*y-j*z+g'
+
 
 # print(data)
 # print(brackets_trim(data))
